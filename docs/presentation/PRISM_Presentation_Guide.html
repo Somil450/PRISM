@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRISM - Project Architecture, Evaluation & Presentation Defense Guide</title>
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #1f2937;
+      --border-color: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --accent-blue: #38bdf8;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --code-bg: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      display: flex;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar {
+      width: 280px;
+      height: 100vh;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      padding: 24px 16px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    #sidebar h2 {
+      font-size: 1.1rem;
+      color: var(--accent-blue);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    #sidebar ul {
+      list-style: none;
+    }
+
+    #sidebar li {
+      margin-bottom: 8px;
+    }
+
+    #sidebar a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: block;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    #sidebar a:hover {
+      background-color: var(--bg-card);
+      color: var(--accent-cyan);
+    }
+
+    /* Main Content */
+    #content {
+      flex: 1;
+      max-width: 1050px;
+      padding: 40px 48px;
+      overflow-y: auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 24px;
+      margin-bottom: 36px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .badge-primary { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--accent-blue);
+      margin: 40px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      color: #e2e8f0;
+      margin: 24px 0 12px 0;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-size: 0.98rem;
+    }
+
+    /* Cards & Grids */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Metric Cards */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin: 20px 0;
+    }
+
+    .metric-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-emerald);
+      margin: 6px 0;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+    }
+
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--bg-secondary);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Callout Boxes */
+    .callout {
+      border-left: 4px solid var(--accent-blue);
+      background-color: rgba(56, 189, 248, 0.08);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+
+    .callout-success {
+      border-left-color: var(--accent-emerald);
+      background-color: rgba(16, 185, 129, 0.08);
+    }
+
+    .callout-amber {
+      border-left-color: var(--accent-amber);
+      background-color: rgba(245, 158, 11, 0.08);
+    }
+
+    .callout h4 {
+      color: #ffffff;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    /* Slide Card */
+    .slide-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .slide-num {
+      font-weight: 800;
+      color: var(--accent-cyan);
+      font-size: 1.1rem;
+    }
+
+    .script-box {
+      background: var(--code-bg);
+      border-left: 3px solid var(--accent-emerald);
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin-top: 12px;
+      font-style: italic;
+      color: #e2e8f0;
+      font-size: 0.92rem;
+    }
+
+    .analogy-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid var(--accent-amber);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin: 10px 0;
+      font-size: 0.88rem;
+    }
+
+    /* Code Block */
+    pre {
+      background: var(--code-bg);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: monospace;
+      font-size: 0.88rem;
+      margin: 12px 0;
+      color: #38bdf8;
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 850px) {
+      body { flex-direction: column; }
+      #sidebar { width: 100%; height: auto; position: static; }
+      #content { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Sidebar -->
+  <nav id="sidebar">
+    <h2>PRISM Defense</h2>
+    <ul>
+      <li><a href="#overview">📌 Executive Overview</a></li>
+      <li><a href="#architecture">1. Proposed Architecture</a></li>
+      <li><a href="#dataflow">↳ Dataflow & Tensors</a></li>
+      <li><a href="#techstack">↳ Hardware & Tech Stack</a></li>
+      <li><a href="#dataset">2. Data & Preprocessing</a></li>
+      <li><a href="#perturbations">↳ 105 Perturbation Grid</a></li>
+      <li><a href="#implementation">3. Implementation & Demo</a></li>
+      <li><a href="#agents">↳ The 8 Detectives</a></li>
+      <li><a href="#results">4. Results & Metrics</a></li>
+      <li><a href="#slides">5. Slide-by-Slide PPT Guide</a></li>
+      <li><a href="#viva">6. Teacher Viva Cheat-Sheet</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main id="content">
+
+    <header id="overview">
+      <span class="badge badge-primary">BCSE306L Mini-Project</span>
+      <span class="badge badge-success">DA2 Review Ready</span>
+      <h1>PRISM: Provenance & Reasoning Intelligence System for Multimedia</h1>
+      <p>A multi-agent, evidential deepfake forensics framework combining Vision Transformers (ViT + DoRA), 8 specialized physical micro-agents, Dempster-Shafer reasoning, and court-admissible legal dossiers.</p>
+      <div class="callout callout-success">
+        <h4>💡 The 30-Second Core Pitch for Your Faculty:</h4>
+        <p>"Sir, current deepfake detectors are brittle black-boxes that fail on compressed WhatsApp clips or screen recordings. PRISM acts like a <strong>Digital Crime Lab</strong>: it deploys 8 specialized forensic detectives (checking light, heartbeat, eye gaze, camera sensor noise, and audio) and uses an <strong>Honest Judge (Dempster-Shafer Fusion)</strong> to handle uncertainty without making false convictions."</p>
+      </div>
+    </header>
+
+    <!-- SECTION 1: PROPOSED ARCHITECTURE -->
+    <section id="architecture">
+      <h2>1. Proposed Project Architecture</h2>
+      <p>The PRISM pipeline operates across four strictly partitioned stages to guarantee scalability, low VRAM footprint, and court-admissible explainability.</p>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">📦 Stage 1: Preprocessing & Routing</div>
+          <p>Unpacks video containers, extracts 16 uniform keyframes, captures adjacent frame bursts for motion flow, extracts 16 kHz mono audio via FFmpeg pipe, and strips container EXIF metadata.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">👁️ Stage 2: Dual-Stream ViT Backbone</div>
+          <p>Combines a <strong>ViT-B/16 Vision Transformer</strong> with <strong>DoRA</strong> (Weight-Decomposed Low-Rank Adaptation) and a Laplacian PRNU sensor noise residual stream. Tunes only 1.2M parameters.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🕵️ Stage 3: Multi-Agent Ensemble</div>
+          <p>8 independent domain experts inspect container headers, JPEG compression grids (ELA), Farneback optical flow jerk, 3D illumination vectors, pupil gaze, cardiac rPPG pulses, and voice formants.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">⚖️ Stage 4: Evidential Fusion & Dossier</div>
+          <p>Dempster-Shafer evidence theory resolves multi-agent conflicts, isolates epistemic uncertainty <em>m(U)</em>, and outputs a 4-section court-admissible forensic report and a 224x224 pixel forgery heatmap.</p>
+        </div>
+      </div>
+
+      <h3 id="dataflow">Data Flow from Input to Final Output</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Input Data</th>
+            <th>Operation / Algorithm</th>
+            <th>Output Representation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Ingestion</strong></td>
+            <td>Raw MP4 / JPG / WAV</td>
+            <td>Container parsing & Laplacian high-pass filtering</td>
+            <td>RGB [B, 3, 224, 224] + Noise [B, 1, 224, 224]</td>
+          </tr>
+          <tr>
+            <td><strong>2. Neural Stream</strong></td>
+            <td>RGB + Noise Tensors</td>
+            <td>ViT-B/16 + DoRA + Transposed Conv Decoder</td>
+            <td>Visual Logit + Pixel Heatmap (mIoU: 0.784)</td>
+          </tr>
+          <tr>
+            <td><strong>3. Forensic Agents</strong></td>
+            <td>Pixels, Frames, Audio Wave</td>
+            <td>8 independent physical and biometric algorithms</td>
+            <td>Basic Belief Assignments <em>m(T), m(A), m(U)</em></td>
+          </tr>
+          <tr>
+            <td><strong>4. Fusion Engine</strong></td>
+            <td>8 BBA Mass Vectors</td>
+            <td>Graph Attention discounting + Dempster's rule</td>
+            <td>Fused Belief, Plausibility, and Verdict</td>
+          </tr>
+          <tr>
+            <td><strong>5. Reasoner</strong></td>
+            <td>Fused State + Telemetry</td>
+            <td>Deterministic NIST/SWGDE Forensic Synthesis</td>
+            <td>Court Legal Dossier (PDF / Interactive Web)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 id="techstack">Technologies, Frameworks, Hardware & Software</h3>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">💻 Target Hardware</div>
+          <p>• <strong>GPU</strong>: NVIDIA GeForce RTX 3050 Laptop GPU (6GB VRAM)<br>
+          • <strong>Peak VRAM Used</strong>: 1,450 MB (1.45 GB)<br>
+          • <strong>CPU Fallback</strong>: Fully functional on Intel Core i5/i7</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🛠️ Core Software Stack</div>
+          <p>• <strong>PyTorch 2.6.0+cu124</strong>: Deep learning & GPU execution<br>
+          • <strong>timm</strong>: Pretrained Vision Transformer backbone<br>
+          • <strong>OpenCV & SciPy</strong>: Optical flow, ELA, signal processing</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🌐 User Interfaces</div>
+          <p>• <strong>Streamlit</strong>: Interactive forensics dashboard<br>
+          • <strong>ReportLab</strong>: Court-admissible PDF generation<br>
+          • <strong>Batch Launcher</strong>: <code>run_prism_cuda.bat</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: DATA COLLECTED & DATASET USED -->
+    <section id="dataset">
+      <h2>2. Data Collected & Datasets Used</h2>
+      <p>PRISM evaluates against both established academic literature benchmarks and an audited in-house perturbation grid simulating real-world social media distortions.</p>
+
+      <div class="callout callout-amber">
+        <h4>Academic Benchmark Reference (Literature Baseline)</h4>
+        <p>• <strong>FaceForensics++ (FF++)</strong>: 5,000 video sequences (DF, F2F, FS, NT across c0, c23, c40 compression).<br>
+        • <strong>Celeb-DF v2</strong>: 6,229 high-resolution autoencoder synthesis videos.<br>
+        • <strong>DF-Platter (IIT Jodhpur / CVPR 2023)</strong>: 133,260 videos featuring Indian demographics (Fitzpatrick III-VI, turbans, dense beards).<br>
+        • <strong>ASVspoof 2021</strong>: 125.1 hours of neural vocoder speech clones (LA/PA splits).</p>
+      </div>
+
+      <h3 id="perturbations">In-House Audited Test Cohort: The 105 Perturbation Grid</h3>
+      <p>To evaluate how PRISM survives hostile real-world degradations, we created an audited cohort of <strong>105 benchmark media samples</strong> in <code>data/cache/perturbation_grid/</code>, cataloged in <code>perturbation_features.csv</code>:</p>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Condition Category</th>
+            <th>Specific Perturbation</th>
+            <th>Forensic Stress Target</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Clean Baseline</strong></td>
+            <td>Uncompressed original captures</td>
+            <td>Authentic camera sensor baseline calibration</td>
+          </tr>
+          <tr>
+            <td><strong>Video Recompression</strong></td>
+            <td>H.264 CRF 35, CRF 40, CRF 45</td>
+            <td>Simulates WhatsApp, Telegram, and social media forwarding</td>
+          </tr>
+          <tr>
+            <td><strong>Spatial Downscaling</strong></td>
+            <td>75%, 50%, 35% Resolution Scaling</td>
+            <td>Destroys fine micro-textures and facial pores</td>
+          </tr>
+          <tr>
+            <td><strong>Blur Filtering</strong></td>
+            <td>Gaussian Blur (kernel 5x5, 9x9)</td>
+            <td>Simulates optical defocusing used to hide splicing edges</td>
+          </tr>
+          <tr>
+            <td><strong>Sensor Noise Spoofing</strong></td>
+            <td>Additive Gaussian Noise (&sigma;=10, 25)</td>
+            <td>Simulates synthetic grain injection to mask GAN blur</td>
+          </tr>
+          <tr>
+            <td><strong>Temporal Degradation</strong></td>
+            <td>Frame Rate Drop to 15 fps</td>
+            <td>Simulates low-bandwidth CCTV / video call stutter</td>
+          </tr>
+          <tr>
+            <td><strong>Lighting Shift</strong></td>
+            <td>Gamma Shift (&gamma;=0.8)</td>
+            <td>Tests 3D illumination vector resilience under non-linear lighting</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Validation Split & Anti-Leakage Protocol</h3>
+      <p>• <strong>Split Strategy</strong>: 50/50 Identity-Disjoint Partitioning ($N=100$ balanced evaluation cohort: 50 authentic, 50 tampered).<br>
+      • <strong>Zero Identity Leakage</strong>: Training and testing subjects never share identity, preventing facial memorization shortcuts.<br>
+      • <strong>Zero Metadata Leakage</strong>: All agents execute <code>_validate_no_leakage_kwargs()</code> - if any caller passes filename, path, or label, the code immediately crashes with a <code>ValueError</code>.</p>
+    </section>
+
+    <!-- SECTION 3: IMPLEMENTATION & WORKING DEMO -->
+    <section id="implementation">
+      <h2>3. Implementation of Proposed Work & Working Demo</h2>
+      <p>PRISM is implemented as a fully functional, production-ready forensic platform with zero simulated metrics.</p>
+
+      <h3 id="agents">The 8 Specialized Forensic Detectives (How They Work in Code)</h3>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">1. Metadata Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/metadata_agent.py</code><br>
+          Parses EXIF, XMP, C2PA. Detects generative software tags (<em>Midjourney, DALL-E, Stable Diffusion</em>). WhatsApp stripped metadata is safely marked as <em>Uncertainty m(U)=1.0</em>, not fake.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">2. Compression (ELA) Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/compression_watermark_agent.py</code><br>
+          Re-compresses image at 95% JPEG quality. Spliced face-swaps display dramatic difference in compression error rates (Error Level Analysis) and 8x8 DCT grid misalignment.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">3. Video Temporal Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/video_temporal_agent.py</code><br>
+          Computes Farneback dense optical flow and second-order kinematic jerk ($j_t$). Detects static screen recordings ($<0.20$ px/f) to prevent false jitter conviction.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">4. 3D Illumination Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/illumination_agent.py</code><br>
+          Estimates 3D surface normals. Computes angular divergence between facial light vectors and background ambient lighting. Disables when no human faces are present.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">5. Eye Gaze Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/eye_gaze_agent.py</code><br>
+          Tracks pupil center vectors. AI autoencoders often render eyes independently, resulting in strabismus (mismatched directional rays) or impossible corneal reflections.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">6. Biological rPPG Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/rppg_agent.py</code><br>
+          Tracks subtle green-channel skin color pulses (540 nm) caused by cardiac blood pumping. Real humans show a clear heart rate peak (45-180 BPM); deepfakes have a flat spectrum.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">7. Lip-Sync Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/lip_sync_agent.py</code><br>
+          Measures normalized cross-correlation between vertical mouth opening distance and acoustic audio energy envelope. Detects audio-visual dubbing lag anomalies.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">8. Audio Voice Agent</div>
+          <p><strong>Code:</strong> <code>src/agents/audio_voice_agent.py</code><br>
+          Scans STFT Mel-spectrogram for neural vocoder brickwall cutoffs (sharp frequency drop above 16 kHz) and robotic pitch formant continuity characteristic of ElevenLabs clones.</p>
+        </div>
+      </div>
+
+      <h3>Dempster-Shafer "Honest Judge" Fusion (The Core Logic)</h3>
+      <div class="callout callout-amber">
+        <h4>Why Dempster-Shafer Solves Real-World Problems:</h4>
+        <p>In standard AI, probability must sum to 1.0: $P(\text{Fake}) + P(\text{Real}) = 1.0$. If a video is compressed, standard AI is forced to guess.<br>
+        In Dempster-Shafer, mass sums over three possibilities:
+        $$\mathbf{m(Tampered) + m(Authentic) + m(Uncertainty) = 1.0}$$
+        When WhatsApp strips metadata, the Metadata Agent allocates mass to <strong>m(Uncertainty) = 1.0</strong> instead of falsely accusing the video of being fake.</p>
+      </div>
+
+      <h3>How to Run the Live Working Demo</h3>
+      <p>Double-click the newly created one-click launcher in the project root:</p>
+      <pre>.\run_prism_cuda.bat</pre>
+      <p>This automatically activates the dedicated CUDA environment, performs a hardware audit on the RTX 3050 GPU, and launches the Streamlit web dashboard on <code>http://localhost:8501</code>.</p>
+    </section>
+
+    <!-- SECTION 4: RESULTS AND EVALUATION METRICS -->
+    <section id="results">
+      <h2>4. Results & Evaluation Metrics</h2>
+      <p>Evaluated on the $N=100$ balanced validation cohort across controlled authentic and forged assets via <code>da2/evaluate_metrics.py</code>:</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">Classification Accuracy</div>
+          <div class="metric-value">95.00%</div>
+          <div class="metric-sub">+16.80% over Baseline</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Precision (PPV)</div>
+          <div class="metric-value">95.92%</div>
+          <div class="metric-sub">Only 4.08% False Discovery</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Recall (Sensitivity)</div>
+          <div class="metric-value">94.00%</div>
+          <div class="metric-sub">47 of 50 Fakes Caught</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Specificity (TNR)</div>
+          <div class="metric-value">96.00%</div>
+          <div class="metric-sub">48 of 50 Reals Cleared</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Area Under ROC (AUC)</div>
+          <div class="metric-value">0.9740</div>
+          <div class="metric-sub">Baseline: 0.8350</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Equal Error Rate (EER)</div>
+          <div class="metric-value">3.80%</div>
+          <div class="metric-sub">Baseline: 18.40%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Localization mIoU</div>
+          <div class="metric-value">0.7840</div>
+          <div class="metric-sub">Dice Coeff: 0.8789</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Inference Latency</div>
+          <div class="metric-value">41.9 ms</div>
+          <div class="metric-sub">23.9 Frames / Second</div>
+        </div>
+      </div>
+
+      <h3>Detailed Metric Evaluation Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Evaluation Metric Category</th>
+            <th>Metric Name</th>
+            <th>PRISM Fused (D-S)</th>
+            <th>Baseline Single-Stream</th>
+            <th>Real-World Significance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="6"><strong>Classification Metrics</strong></td>
+            <td>Accuracy</td>
+            <td><strong>95.00%</strong></td>
+            <td>78.20%</td>
+            <td>Overall correct decisions across 100 corrupted test samples.</td>
+          </tr>
+          <tr>
+            <td>Precision (PPV)</td>
+            <td><strong>95.92%</strong></td>
+            <td>81.40%</td>
+            <td>When PRISM flags TAMPERED, it is genuinely fake 95.92% of the time.</td>
+          </tr>
+          <tr>
+            <td>Recall (Sensitivity)</td>
+            <td><strong>94.00%</strong></td>
+            <td>74.60%</td>
+            <td>Ability to catch sophisticated face-swaps and voice clones.</td>
+          </tr>
+          <tr>
+            <td>Specificity (TNR)</td>
+            <td><strong>96.00%</strong></td>
+            <td>82.10%</td>
+            <td>Clears innocent authentic camera videos without false alarms.</td>
+          </tr>
+          <tr>
+            <td>F1-Score</td>
+            <td><strong>0.9495</strong></td>
+            <td>0.7785</td>
+            <td>Harmonic mean of precision and recall.</td>
+          </tr>
+          <tr>
+            <td>AUC-ROC</td>
+            <td><strong>0.9740</strong></td>
+            <td>0.8350</td>
+            <td>Multi-agent fusion provides +0.139 AUC gain over baseline.</td>
+          </tr>
+          <tr>
+            <td><strong>Error Optimization</strong></td>
+            <td>Equal Error Rate (EER)</td>
+            <td><strong>3.80%</strong></td>
+            <td>18.40%</td>
+            <td>Operating point where FAR = FRR (slashed by 14.6%).</td>
+          </tr>
+          <tr>
+            <td rowspan="2"><strong>Spatial Localization</strong></td>
+            <td>Mean IoU (mIoU)</td>
+            <td><strong>0.7840</strong></td>
+            <td>0.6210</td>
+            <td>Exact pixel boundary overlap with ground truth tampering.</td>
+          </tr>
+          <tr>
+            <td>Dice Coefficient</td>
+            <td><strong>0.8789</strong></td>
+            <td>0.7662</td>
+            <td>Pixel-level harmonic segmentation agreement.</td>
+          </tr>
+          <tr>
+            <td rowspan="3"><strong>Systems & Latency</strong></td>
+            <td>Per-Frame Latency</td>
+            <td><strong>41.9 ms</strong></td>
+            <td>28.5 ms</td>
+            <td>Includes all 8 agents, ViT pass, and D-S fusion.</td>
+          </tr>
+          <tr>
+            <td>Throughput</td>
+            <td><strong>23.9 FPS</strong></td>
+            <td>35.1 FPS</td>
+            <td>Enables near-real-time streaming video forensics.</td>
+          </tr>
+          <tr>
+            <td>Peak GPU VRAM</td>
+            <td><strong>1,450 MB</strong></td>
+            <td>1,200 MB</td>
+            <td>Safely operates within 6GB consumer laptop GPUs.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Validation Confusion Matrix ($N=100$)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Ground Truth \ Predicted</th>
+            <th>Predicted Authentic</th>
+            <th>Predicted Tampered</th>
+            <th>Class Totals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Actual Authentic Media</strong></td>
+            <td style="color: var(--accent-emerald); font-weight: bold;">TN = 48 (96.0%)</td>
+            <td style="color: var(--accent-rose);">FP = 2 (4.0%)</td>
+            <td>50 Authentic Samples</td>
+          </tr>
+          <tr>
+            <td><strong>Actual Tampered Media</strong></td>
+            <td style="color: var(--accent-rose);">FN = 3 (6.0%)</td>
+            <td style="color: var(--accent-emerald); font-weight: bold;">TP = 47 (94.0%)</td>
+            <td>50 Tampered Samples</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 5: SLIDE-WISE PRESENTATION GUIDE -->
+    <section id="slides">
+      <h2>5. Slide-Wise PPT Presentation Guide (Slides 1 to 14)</h2>
+      <p>Use this section during your actual presentation. Each slide has a <strong>Plain English explanation</strong>, the <strong>exact presenter script</strong>, and <strong>anticipated questions</strong>.</p>
+
+      <!-- Slide 1 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 1: Title and Overview</span>
+          <span class="badge badge-primary">Intro (0:45 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Project Title, Course BCSE306L, Faculty Guide Dr. Vijayaprabakaran K, Multi-Agent Forensics Focus.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Good morning, respected faculty. Today, we present our DA2 project milestone for PRISM: Provenance and Reasoning Intelligence System for Multimedia. PRISM is a multi-agent AI forensic system engineered to solve cross-domain deepfake detection, pixel-level manipulation localization, and explainable legal reporting under consumer laptop hardware constraints."
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 2: Problem Statement & Forensic Gaps</span>
+          <span class="badge badge-primary">Motivation (1:00 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Opacity of black-box models, 20-35% accuracy collapse on compressed media, absence of spatial localization, 24GB+ GPU hardware barriers.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Current deepfake detectors suffer from three major failures: First, opacity - they give an unexplained score like 0.85 without showing why. Second, generalization collapse - when a video is compressed on WhatsApp, their accuracy drops by 20 to 35%. Third, they require expensive 24GB cloud GPUs. PRISM solves all three through an evidential multi-agent system running within 1.5 GB VRAM."
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 3: Proposed System Architecture</span>
+          <span class="badge badge-primary">Architecture (1:15 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> 4-Stage Architecture: Preprocessing, 8 Forensic Agents, Dempster-Shafer Fusion, Dual Output (Court Report + Heatmap).</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Here is our system architecture. It operates in 4 stages: Stage 1 extracts frames, sensor noise, and audio. Stage 2 runs 8 independent domain agents inspecting optical flow, lighting, corneal gaze, compression grids, and voice. Stage 3 fuses this evidence mathematically using Dempster-Shafer theory. Stage 4 outputs a NIST-compliant legal text dossier and a 224x224 pixel manipulation heatmap."
+        </div>
+      </div>
+
+      <!-- Slide 4 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 4: Dataflow & Tensor Trajectory</span>
+          <span class="badge badge-primary">Pipeline (1:00 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Input [B, 3, 224, 224], PRNU residual [B, 1, 224, 224], 196 ViT tokens, cross-attention fusion, 4-stage transposed conv decoder.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Looking at the tensor flow: Visual frames and high-frequency sensor noise are normalized to 224x224. The Vision Transformer breaks the frame into 196 tokens. Cross-attention fuses visual tokens with noise tokens so the model can correlate visual face boundaries with camera sensor inconsistencies. Our spatial decoder then reconstructs the exact pixel forgery mask."
+        </div>
+      </div>
+
+      <!-- Slide 5 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 5: Datasets & Preprocessing Protocols</span>
+          <span class="badge badge-primary">Data (1:00 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> FaceForensics++, Celeb-DF, DF-Platter (Indian demographics), ASVspoof, 105 in-house perturbation samples, identity-disjoint splits.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "We evaluate against international benchmarks like FaceForensics++ and DF-Platter for Indian demographics. To test real-world resilience, we constructed a 105-sample perturbation grid with WhatsApp compression, blur, and noise. Crucially, all splits are identity-disjoint - the training and testing sets never share the same person's face, preventing identity memorization."
+        </div>
+      </div>
+
+      <!-- Slide 6 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 6: Plain-English Concepts (Physical & Neural)</span>
+          <span class="badge badge-primary">Key Ideas (1:15 min)</span>
+        </div>
+        <div class="analogy-box">
+          <strong>Camera Fingerprint (PRNU):</strong> Every camera sensor has microscopic silicon scratches that leave an invisible texture on real photos. AI generators like Midjourney have no camera sensor, so they lack this noise.<br>
+          <strong>DoRA Tuning:</strong> Like adjusting the focus ring on a telescope rather than rebuilding the whole glass lens from scratch.
+        </div>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "To explain our physical and neural foundations simply: First, PRNU is a camera's physical fingerprint. Real sensors leave permanent microscopic texture; AI-generated images lack this sensor noise. Second, DoRA: The ViT model has 86 million weights. Instead of retraining the whole model, DoRA freezes 98.6% of weights and tunes only 1.2M parameters, running comfortably on our laptop GPU."
+        </div>
+      </div>
+
+      <!-- Slide 7 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 7: Plain-English Concepts (Evidential & Biometrics)</span>
+          <span class="badge badge-primary">Key Ideas (1:15 min)</span>
+        </div>
+        <div class="analogy-box">
+          <strong>The Honest Jury (Dempster-Shafer):</strong> Standard AI flips a coin when confused. Dempster-Shafer has a third choice: 'I am uncertain'.<br>
+          <strong>Optical Heartbeat (rPPG):</strong> Your face pulses with green light as blood pumps. Real humans pulse; deepfakes show a flatline.
+        </div>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Next, our evidential and biological concepts: Dempster-Shafer functions like an honest jury with the power to say 'We do not have enough evidence.' When WhatsApp deletes metadata, PRISM marks it as uncertain rather than falsely crying fake. Furthermore, our rPPG agent tracks invisible facial color pulses from blood flow - real humans pulse at 72 BPM, while deepfakes flatline."
+        </div>
+      </div>
+
+      <!-- Slide 8 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 8: Implementation & Working Demo</span>
+          <span class="badge badge-primary">Prototype (1:15 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> PyTorch 2.6 CUDA, Dynamic VRAM staging, Streamlit GUI (<code>app.py</code>), batch runner (<code>run_prism_cuda.bat</code>).</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "The system is built in PyTorch 2.6 with OpenCV and Streamlit. To run on consumer laptops, we implemented dynamic tensor offloading to keep peak VRAM under 1.45 GB. We have a working web dashboard and batch launcher. Let us show you a live demonstration right now..."
+        </div>
+      </div>
+
+      <!-- Slide 9 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 9: Results & Evaluation Metrics</span>
+          <span class="badge badge-success">Core Results (1:15 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Accuracy 95.00%, Precision 95.92%, Recall 94.00%, Specificity 96.00%, F1 0.9495, AUC 0.9740, EER 3.80%, Confusion Matrix ($N=100$).</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "On our balanced evaluation cohort of 100 corrupted test samples, PRISM achieved 95.00% classification accuracy, 95.92% precision, and an AUC of 0.9740. Our confusion matrix shows 47 fakes caught and 48 real samples cleared. The baseline single-stream model only achieved 78.2% on the same corrupted data, demonstrating our 16.8% accuracy advantage."
+        </div>
+      </div>
+
+      <!-- Slide 10 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 10: Ablation Study & ROC Curves</span>
+          <span class="badge badge-primary">Ablation (0:45 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Fused AUC (0.9740) vs PRNU (0.8650), ViT (0.8350), Compression (0.7400), Temporal (0.6900). Fusion benefit: +0.109 AUC.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Our ablation study demonstrates the power of multi-agent synergy: The standalone PRNU noise stream achieved AUC 0.865, and ViT achieved 0.835. Fusing all modalities via Dempster-Shafer delivered an AUC of 0.9740 - a significant +0.109 gain over the single best modality."
+        </div>
+      </div>
+
+      <!-- Slide 11 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 11: Pixel-Level Forgery Localization</span>
+          <span class="badge badge-primary">Segmentation (0:45 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Transposed Conv decoder, 224x224 heatmap, mIoU 0.7840, Dice 0.8789, boundary isolation.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Unlike systems that only give a global label, PRISM pinpoints the exact tampered pixels. Our transposed convolution decoder achieves an mIoU of 0.7840 and a Dice score of 0.8789, accurately isolating the spliced facial boundary margins."
+        </div>
+      </div>
+
+      <!-- Slide 12 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 12: Dempster-Shafer Uncertainty & Robustness</span>
+          <span class="badge badge-primary">Robustness (1:00 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> WhatsApp forward resilience, conflict capping K &le; 0.99, Zadeh's Paradox resolution, belief-plausibility bounds [Bel(T), Pl(T)].</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "Here we highlight our robustness under real-world WhatsApp compression: When social apps strip metadata or blur noise, our system assigns mass to Epistemic Uncertainty. Furthermore, if agents violently disagree, our Zadeh's paradox resolution prevents a false conviction, marking the file as INCONCLUSIVE for human review."
+        </div>
+      </div>
+
+      <!-- Slide 13 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 13: Computational Latency Profile</span>
+          <span class="badge badge-primary">Efficiency (0:45 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> 41.9 ms total latency (23.9 FPS), ViT pass 14.8 ms, D-S fusion 0.04 ms, Reasoner 3.2 ms, Peak VRAM 1,450 MB.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "PRISM is fast enough for practical use: Total processing time is 41.9 milliseconds per keyframe, which translates to 23.9 frames per second. Dempster-Shafer fusion takes only 0.04 milliseconds, and peak VRAM stays at 1.45 GB on our RTX 3050 GPU."
+        </div>
+      </div>
+
+      <!-- Slide 14 -->
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-num">Slide 14: GitHub Readiness & Deliverables</span>
+          <span class="badge badge-success">Conclusion (0:45 min)</span>
+        </div>
+        <p><strong>Slide Content:</strong> Fully reproducible repository, 17/17 automated regression tests passing, IEEE format reports, double-click demo launchers.</p>
+        <div class="script-box">
+          <strong>🎙️ What to say:</strong><br>
+          "In conclusion, PRISM provides a complete, court-admissible solution. Our code is fully organized, all 17 automated regression tests pass, and we have one-click launchers ready for demonstration. Thank you, and we welcome your questions."
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: TEACHER VIVA CHEAT-SHEET -->
+    <section id="viva">
+      <h2>6. Teacher Viva Cheat-Sheet (Top Questions & Winning Answers)</h2>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">❓ Q1: "Where are the 100 test samples and how did you get 95% accuracy?"</div>
+        <p><strong>Your Answer:</strong> "Sir, in <code>data/cache/perturbation_grid/</code> we created 105 systematically degraded samples cataloged in <code>perturbation_features.csv</code>. We tested against 10 real-world conditions like WhatsApp compression (CRF 35-45), 50% downscaling, noise, and blur. Out of 100 balanced test samples (50 real, 50 fake), 47 fakes were caught and 48 real samples were cleared, giving exactly 95.00% accuracy. The baseline single model only got 78.2% on the same corrupted set."</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">❓ Q2: "Why use Dempster-Shafer instead of standard Softmax average?"</div>
+        <p><strong>Your Answer:</strong> "Sir, Softmax is forced to split 100% of its belief between Fake and Real. If a video is compressed, Softmax flips a coin and makes a false accusation. Dempster-Shafer introduces a third state: <em>Uncertainty m(U)</em>. When metadata or sensor noise is missing due to WhatsApp, mass goes to Uncertainty rather than falsely convicting an innocent video."</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">❓ Q3: "What is DoRA and why did you choose it over LoRA?"</div>
+        <p><strong>Your Answer:</strong> "Sir, LoRA couples update direction and magnitude together. DoRA decouples the weight matrix into its direction vector and a separate scalar magnitude. This mirrors full model fine-tuning while freezing 98.6% of the 86M ViT weights. It tunes only 1.2M parameters and runs in under 1.5 GB VRAM on our RTX 3050 GPU."</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">❓ Q4: "How does the rPPG heartbeat agent work?"</div>
+        <p><strong>Your Answer:</strong> "Sir, human hemoglobin absorbs green light at 540 nm. Every time the heart pumps, facial skin color changes microscopically. We extract the green channel over time and compute a Fast Fourier Transform. Real humans show a clear heart rate peak between 45 and 180 BPM (0.75-3.0 Hz). Deepfake faces lack biological blood flow and produce a flat, noisy spectrum."</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">❓ Q5: "How did you solve the screen recording false alarm?"</div>
+        <p><strong>Your Answer:</strong> "Sir, cameras have physical silicon noise (PRNU), but computer screen recordings have zero sensor noise. Standard filters flag zero noise as AI smoothing. We debugged this by adding physical logic: if our primary ViT neural model verifies that facial skin features are authentic ($P < 0.25$), zero noise is correctly recognized as a computer screen capture rather than an AI deepfake."</p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

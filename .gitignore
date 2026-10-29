@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch & Model Checkpoints (Files >100MB should be hosted on releases/HF)
+*.pth
+*.pt
+*.bin
+*.onnx.extra
+models/checkpoints/*.pth
+models/checkpoints/*.pt
+checkpoints/
+*.zip
+*.tar.gz
+
+# Environments & Packages
+venv/
+.venv/
+env/
+.env
+node_modules/
+friend_contribution_package/
+report_ieee/
+
+# Jupyter & IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Large Datasets & Open Evaluation Cohorts (>100MB)
+data/genuine_open_eval/
+data/expanded_real_test_samples/
+data/factcheck_archives/
+data/cache/*.json
+data/cache/*.txt
+data/cache/perturbation_grid/*.mp4
+data/cache/test_smoke_features.csv
+
+# Temporary Logs & Scratch Files
+scratch/
+eval.log
+.build/
+.pytest_cache/
+.agents/
+.claude/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini

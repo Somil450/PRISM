@@ -1,0 +1,25 @@
+# Deep Learning & Neural Backbone
+torch>=2.0.0
+torchvision>=0.15.0
+timm>=0.9.0
+
+# Computer Vision & Image Processing
+opencv-python>=4.8.0
+pillow>=9.5.0
+scipy>=1.10.0
+
+# Scientific & Evaluation Tools
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.2.0
+matplotlib>=3.7.0
+
+# Interactive Application & Reporting
+streamlit>=1.28.0
+reportlab>=4.0.0
+
+# Optional Evidential Reasoner
+ollama>=0.1.0
+
+# Testing & Verification
+pytest>=7.4.0

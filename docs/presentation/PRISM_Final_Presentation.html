@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>PRISM - Multimedia Provenance Verification Presentation</title>
+  <style>
+    :root {
+      --bg-primary: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border-color: #CBD5E1;
+      --accent-navy: #1E3A8A;
+      --accent-blue: #0284C7;
+      --accent-slate: #334155;
+      --accent-dark: #0F172A;
+      --accent-green: #15803D;
+      --accent-amber: #B45309;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 16px;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    .deck-container {
+      width: 100%;
+      max-width: 1180px;
+      height: 720px;
+      height: min(720px, calc(100vh - 32px));
+      height: min(720px, calc(100dvh - 32px));
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      padding: 36px 48px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    .slide-header {
+      border-bottom: 2px solid var(--accent-navy);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .slide-title {
+      font-size: clamp(17px, 2.2vw, 22px);
+      font-weight: 800;
+      color: var(--accent-dark);
+      letter-spacing: -0.01em;
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-category {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .speaker-pill {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: #EFF6FF;
+      color: var(--accent-navy);
+      border: 1px solid #BFDBFE;
+    }
+
+    .slide-content {
+      flex: 1;
+      font-size: clamp(13px, 1.4vw, 14.5px);
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      height: 100%;
+    }
+
+    .grid-2col-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      height: 100%;
+    }
+
+    .card {
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      padding: 16px 20px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--accent-navy);
+      margin-bottom: 10px;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card ul {
+      margin-left: 18px;
+      font-size: clamp(12.5px, 1.3vw, 13.5px);
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .card li {
+      margin-bottom: 8px;
+    }
+
+    .card li strong {
+      color: var(--text-main);
+    }
+
+    .img-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      padding: 12px;
+      border-radius: 4px;
+      height: 100%;
+    }
+
+    .img-container img {
+      max-width: 100%;
+      max-height: min(390px, 46vh);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .img-caption {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    table.academic-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(11.5px, 1.3vw, 13px);
+      margin-top: 8px;
+    }
+
+    table.academic-table th {
+      background-color: #F1F5F9;
+      color: var(--text-main);
+      text-align: left;
+      padding: 8px 12px;
+      border-top: 1.5px solid var(--accent-dark);
+      border-bottom: 1.5px solid var(--accent-dark);
+      font-weight: 700;
+    }
+
+    table.academic-table td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #E2E8F0;
+      color: var(--text-muted);
+    }
+
+    table.academic-table tr:last-child td {
+      border-bottom: 1.5px solid var(--accent-dark);
+    }
+
+    .highlight-cell {
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    /* Title Slide Specific */
+    .title-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 30px;
+    }
+
+    .title-slide h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 900;
+      color: var(--accent-dark);
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .title-slide h2 {
+      font-size: clamp(15px, 1.8vw, 18px);
+      font-weight: 600;
+      color: var(--accent-navy);
+      margin-bottom: 24px;
+      max-width: 820px;
+    }
+
+    .badge-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .badge {
+      padding: 5px 14px;
+      background: #F1F5F9;
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-slate);
+      border-radius: 4px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 850px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 22px;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .meta-grid strong {
+      color: var(--accent-navy);
+      font-size: 13px;
+    }
+
+    .deck-footer {
+      height: 48px;
+      border-top: 1px solid var(--border-color);
+      background: #F8FAFC;
+      padding: 0 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .nav-btn {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      padding: 6px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      border-radius: 4px;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      background: #F1F5F9;
+      border-color: #94A3B8;
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2col, .grid-2col-equal {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .slide {
+        padding: 20px;
+      }
+      .deck-container {
+        height: min(780px, calc(100vh - 20px));
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="deck-container">
+
+    <!-- ============================================================
+         SLIDE 1: Title Slide
+    ============================================================ -->
+    <div class="slide active title-slide" id="slide-1">
+      <div style="font-size: 13px; font-weight: 800; color: var(--accent-blue); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">
+        IEEE Transactions on Information Forensics and Security (Vol. 21, 2026)
+      </div>
+      <h1>PRISM</h1>
+      <h2>A Multi-Agent Forensic Framework for Multimedia Provenance Verification via Dual-Stream Representation Learning and Dempster-Shafer Evidential Fusion</h2>
+      <div class="badge-container">
+        <span class="badge">Multimedia Forensics &amp; Provenance</span>
+        <span class="badge">Multi-Agent Systems</span>
+        <span class="badge">Dempster-Shafer Evidence Theory</span>
+      </div>
+      <div class="meta-grid">
+        <div>
+          <strong>Authors</strong><br>
+          Tanush Bhootra<br>
+          Somil Jain<br>
+          Kulsum Malik
+        </div>
+        <div>
+          <strong>Institutional Affiliation</strong><br>
+          School of Computer Science and Engineering (SCOPE)<br>
+          Vellore Institute of Technology (VIT)<br>
+          Chennai 600127, India
+        </div>
+        <div>
+          <strong>Evaluation Focus</strong><br>
+          Zero Identity Leakage Protocol<br>
+          Consumer GPU Feasibility (RTX 3050)<br>
+          WhatsApp/Social Media Robustness
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 2: Problem Statement & Motivation (Tanush)
+    ============================================================ -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="slide-title">The Verification Impasse: Cryptographic Hashes vs Physical Provenance</div>
+        <div class="header-badges">
+          <span class="slide-category">Motivation &amp; Background</span>
+          <span class="speaker-pill">Presenter: Tanush Bhootra</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col-equal">
+          <div class="card">
+            <div class="card-title">Limitations of Conventional Evidence Handling</div>
+            <ul>
+              <li><strong>NIST SP 800-86 Paradigm:</strong> Digital custody chains depend upon bit-level file hashes (SHA-256) to confirm transmission integrity.</li>
+              <li><strong>The Provenance Blindspot:</strong> A valid SHA-256 digest confirms that zero bits were altered during transmission, but offers zero proof regarding whether the captured photons originated from physical camera reality or neural generators.</li>
+              <li><strong>Evidentiary Vulnerability:</strong> A cryptographically untampered media container can readily enclose a fully fabricated synthetic persona.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Cross-Generator Brittleness of Monolithic CNNs</div>
+            <ul>
+              <li><strong>Pixel-Grid Overfitting:</strong> Legacy convolutional architectures (MesoNet, XceptionNet) frame forensics as static binary classification.</li>
+              <li><strong>Catastrophic Decay:</strong> XceptionNet fine-tuned on FaceForensics++ drops from 99.26% down to 65.27% AUC when evaluated on Celeb-DF v2 (a 34% drop!).</li>
+              <li><strong>Compression Quirks:</strong> Detectors memorize dataset-specific encoding artifacts rather than invariant physical laws.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 3: System Overview (Tanush)
+    ============================================================ -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="slide-title">PRISM: Decoupled Multi-Agent Forensic Architecture</div>
+        <div class="header-badges">
+          <span class="slide-category">System Architecture</span>
+          <span class="speaker-pill">Presenter: Tanush Bhootra</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="img-container">
+            <img src="figures/architecture_diagram.png" alt="PRISM System Architecture">
+            <div class="img-caption">Figure 1: PRISM Multi-Stage Forensic Architecture Block Diagram.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Four Foundational Engineering Principles</div>
+            <ul>
+              <li><strong>Decoupled Micro-Agents:</strong> Organizes forensic analysis into eight specialized evaluators across independent physical domains, preventing cross-channel error cascading.</li>
+              <li><strong>Dual-Stream Grounding:</strong> Couples semantic Vision Transformer tokens with low-level PRNU camera sensor noise residuals.</li>
+              <li><strong>Evidential Calculus:</strong> Replaces naive averaging with Dempster-Shafer theory, explicitly bounding epistemic ignorance under degraded evidence.</li>
+              <li><strong>Courtroom Auditability:</strong> Compiles verified error bounds, pixel heatmaps, and SHA-256 signed JSON reports compliant with NIST SP 800-86 and Federal Rule of Evidence 702.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 4: Dual-Stream Representation (Somil)
+    ============================================================ -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <div class="slide-title">Dual-Stream Representation: ViT-DoRA + Wavelet PRNU</div>
+        <div class="header-badges">
+          <span class="slide-category">Core Technical Innovation</span>
+          <span class="speaker-pill">Presenter: Somil Jain</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col-equal">
+          <div class="card">
+            <div class="card-title">Semantic Stream: ViT-B/16 with DoRA</div>
+            <ul>
+              <li><strong>Vision Transformer Backbone:</strong> Pre-trained on ImageNet-21K with 196 non-overlapping 16x16 patch tokens projected to d=768.</li>
+              <li><strong>Directional Adaptation (DoRA):</strong> Decomposes linear weights into magnitude vector <em>m</em> and directional matrix <em>V</em>.</li>
+              <li><strong>1.43% Trainable Fraction:</strong> Updates only 1.24M parameters out of 86.8M total, preventing catastrophic forgetting of visual priors.</li>
+              <li><strong>Feature Manifold:</strong> Preserves low-level edge, gradient, and illumination representations across unseen synthesis engines.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Physical Stream: PRNU Sensor Noise</div>
+            <ul>
+              <li><strong>Hardware Silicon Invariant:</strong> Microscopic crystalline lattice variations in imaging sensors imprint a unique noise pattern on genuine captures.</li>
+              <li><strong>Wavelet Extraction:</strong> Extracted via four-level Daubechies-4 wavelet decomposition followed by per-channel Wiener noise filtering: <em>W = I - F(I)</em>.</li>
+              <li><strong>Generator Blindspot:</strong> Neural generators lack camera sensor noise; synthetic patches instead carry periodic upsampling convolution residuals.</li>
+              <li><strong>Embedding Fusion:</strong> Globally pooled to 512-D and projected to d=768 alongside the ViT class token.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 5: The 8 Forensic Micro-Agents (Somil)
+    ============================================================ -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <div class="slide-title">The Eight Specialized Forensic Micro-Agents</div>
+        <div class="header-badges">
+          <span class="slide-category">Micro-Agent Ensemble</span>
+          <span class="speaker-pill">Presenter: Somil Jain</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 100%;">
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">1. Illumination Agent</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Estimates 3D light vectors for facial ROI and scene using Sobel gradient integration; detects angle mismatches &gt; 35 degrees.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">2. Corneal Reflection Agent</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Detects pupil specular glints on HSV V-channel; verifies binocular stereo geometry across both eyes.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">3. rPPG Biological Vitality</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Extracts dermal blood volume pulse across 32 frames using CHROM chrominance subspace. AI faces lack cardiovascular pulse.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">4. Lip-Sync &amp; Audio Agent</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Correlates Mouth Aspect Ratio (MAR) with 64-channel log-mel acoustic energy envelope to expose voice reenactment desync.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">5. Video Kinematics Agent</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Dense Farneback optical flow detects frame-to-frame velocity jerks and inter-frame luminance flicker in face-swap seams.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">6. Compression ELA Agent</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Error Level Analysis (q=90) and 2D Hann-windowed FFT detect upsampling convolution grids and compression discontinuities.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">7. Container Metadata Agent</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Parses ISO/IEC 14496-12 atom trees and EXIF headers for encoder strings without reading file paths, preventing label leakage.</p>
+          </div>
+          <div class="card" style="padding: 10px 14px;">
+            <div class="card-title" style="margin-bottom: 4px; font-size: 13.5px;">8. Spatial Mask Decoder</div>
+            <p style="font-size: 12px; color: var(--text-muted);">Four-stage transposed-convolution decoder maps cross-stream tokens into a 224x224 pixel tampering heatmap.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 6: Dempster-Shafer Fusion (Kulsum)
+    ============================================================ -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <div class="slide-title">Mathematical Evidence Fusion: Dempster-Shafer Theory</div>
+        <div class="header-badges">
+          <span class="slide-category">Decision Calculus</span>
+          <span class="speaker-pill">Presenter: Kulsum Malik</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="img-container">
+            <img src="figures/ds_fusion_intervals.png" alt="Dempster Shafer Intervals">
+            <div class="img-caption">Figure 6: Belief-Plausibility intervals [Bel(T), Pl(T)] across media cohorts.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Evidential Fusion &amp; Zadeh Paradox Resolution</div>
+            <ul>
+              <li><strong>Frame of Discernment:</strong> &Theta; = {Authentic, Tampered}. Power set 2<sup>&Theta;</sup> includes &empty;, {A}, {T}, and compound element &Theta;.</li>
+              <li><strong>Epistemic Uncertainty:</strong> Mass <em>m(&Theta;)</em> explicitly quantifies ignorance under degraded social media compression rather than forcing an arbitrary 50/50 probability.</li>
+              <li><strong>Subjective Logic Mapping:</strong> <em>m(T) = r&middot;p / (r+W)</em>, <em>m(A) = r&middot;(1-p) / (r+W)</em>, <em>m(&Theta;) = W / (r+W)</em> with vacuous prior W = 2.</li>
+              <li><strong>Zadeh Paradox Ceiling:</strong> Under extreme agent opposition (K &rarr; 1.0), classical combination yields degenerate outputs. PRISM bounds conflict at K<sub>max</sub> = 0.99.</li>
+              <li><strong>Pignistic Verdict:</strong> Computes final pignistic probability with explicit uncertainty bounds: Authentic (&lt; 0.35), Tampered (&gt; 0.65), or Inconclusive.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 7: SOTA Comparison (Kulsum)
+    ============================================================ -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <div class="slide-title">Quantitative Evaluation: State-of-the-Art Benchmark Comparison</div>
+        <div class="header-badges">
+          <span class="slide-category">Empirical Results</span>
+          <span class="speaker-pill">Presenter: Kulsum Malik</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="img-container">
+            <img src="figures/confusion_matrix.png" alt="PRISM Confusion Matrix">
+            <div class="img-caption">Figure 3: System Confusion Matrix on Verified Multi-Modal Cohort (N = 416).</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Table I: State-of-the-Art Benchmark Comparison</div>
+            <table class="academic-table">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>FF++ C23</th>
+                  <th>Celeb-DF v2</th>
+                  <th>Audio EER</th>
+                  <th>Year</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>MesoNet</td><td>84.70%</td><td>54.80%</td><td>-</td><td>2018</td></tr>
+                <tr><td>XceptionNet</td><td>99.26%</td><td>65.27%</td><td>-</td><td>2019</td></tr>
+                <tr><td>FakeCatcher</td><td>91.10%</td><td>76.40%</td><td>-</td><td>2020</td></tr>
+                <tr><td>Face X-ray</td><td>98.78%</td><td>79.51%</td><td>-</td><td>2020</td></tr>
+                <tr><td>TruFor (CVPR)</td><td>99.31%</td><td>91.23%</td><td>-</td><td>2023</td></tr>
+                <tr style="background: rgba(21, 128, 61, 0.15); font-weight: 700;">
+                  <td style="color: var(--accent-green);">PRISM (Ours)</td>
+                  <td class="highlight-cell">99.21%</td>
+                  <td class="highlight-cell">90.85%</td>
+                  <td class="highlight-cell">3.80%</td>
+                  <td style="color: var(--accent-green);">2026</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="margin-top: 14px; font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+              <strong>Cross-Dataset Generalization:</strong> While legacy models degrade sharply on Celeb-DF v2 (XceptionNet drops to 65.27%), PRISM maintains <strong>90.85% AUC</strong> (76.50% multi-modal accuracy) without fine-tuning, demonstrating true invariance to synthesis pipelines.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 8: Edge Hardware Speed & Heatmap (Kulsum)
+    ============================================================ -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header">
+        <div class="slide-title">Edge Hardware Profiling &amp; Spatial Tampering Localization</div>
+        <div class="header-badges">
+          <span class="slide-category">Edge Deployment &amp; Explainability</span>
+          <span class="speaker-pill">Presenter: Kulsum Malik</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="img-container">
+            <img src="figures/localization_sample.png" alt="PRISM Localization Sample">
+            <div class="img-caption">Figure 5: Input frame, PRNU residual, predicted mask, and reliability heatmap.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">NVIDIA GeForce RTX 3050 Laptop GPU Profiling</div>
+            <div class="grid-2col-equal" style="margin-bottom: 12px;">
+              <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 4px; padding: 10px; text-align: center;">
+                <div style="font-size: 26px; font-weight: 900; color: var(--accent-blue);">62.76 ms</div>
+                <div style="font-size: 11.5px; font-weight: 700; color: var(--text-main);">Mean Latency</div>
+                <div style="font-size: 10px; color: var(--text-muted);">&lt; 100 ms real-time threshold</div>
+              </div>
+              <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 4px; padding: 10px; text-align: center;">
+                <div style="font-size: 26px; font-weight: 900; color: var(--accent-green);">1,450 MB</div>
+                <div style="font-size: 11.5px; font-weight: 700; color: var(--text-main);">Peak VRAM</div>
+                <div style="font-size: 10px; color: var(--text-muted);">Fits inside 6 GB laptop GPU</div>
+              </div>
+            </div>
+            <ul>
+              <li><strong>Real-Time Video Triage:</strong> 24.2 frames per second end-to-end throughput supports real-time media screening.</li>
+              <li><strong>Pixel-Level Explainability:</strong> 4-stage transposed-convolution decoder maps cross-stream tokens directly to a 224x224 tampering heatmap (mIoU = 0.784).</li>
+              <li><strong>Courtroom Admissibility:</strong> Transparent belief intervals and spatial localization satisfy Federal Rule of Evidence 702.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 9: Conclusion & Summary (Kulsum)
+    ============================================================ -->
+    <div class="slide" id="slide-9">
+      <div class="slide-header">
+        <div class="slide-title">Conclusion and Project Deliverables</div>
+        <div class="header-badges">
+          <span class="slide-category">Summary &amp; Compliance</span>
+          <span class="speaker-pill">Presenter: Kulsum Malik</span>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col-equal">
+          <div class="card">
+            <div class="card-title">Core Scientific Contributions</div>
+            <ul>
+              <li><strong>Multi-Agent Decoupling:</strong> Eliminates single-model fragility by deploying eight specialized evaluators across independent physical domains.</li>
+              <li><strong>Physics-Grounded Provenance:</strong> Couples DoRA-adapted Vision Transformers with PRNU wavelet sensor noise to authenticate hardware silicon signatures.</li>
+              <li><strong>Calibrated Evidential Calculus:</strong> Dempster-Shafer theory bounds epistemic uncertainty and resolves inter-agent conflict (K<sub>max</sub> = 0.99).</li>
+              <li><strong>Edge Viability:</strong> Operates inside 1,450 MB VRAM at 62 ms per unit on consumer hardware.</li>
+            </ul>
+          </div>
+          <div class="card" style="background: #F8FAFC; text-align: center; justify-content: center; align-items: center; padding: 28px;">
+            <div style="font-size: 26px; font-weight: 900; color: var(--accent-navy); margin-bottom: 8px;">
+              Thank You!
+            </div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--accent-blue); margin-bottom: 14px;">
+              Tanush Bhootra &bull; Somil Jain &bull; Kulsum Malik
+            </div>
+            <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px;">
+              School of Computer Science and Engineering (SCOPE)<br>
+              Vellore Institute of Technology (VIT), Chennai
+            </div>
+            <div style="font-size: 13.5px; font-weight: 700; color: var(--accent-green); background: #F0FDF4; border: 1px solid #BBF7D0; padding: 8px 16px; border-radius: 4px;">
+              We welcome your questions and feedback.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         FOOTER CONTROLS
+    ============================================================ -->
+    <div class="deck-footer">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span>Use <strong>&larr; / &rarr;</strong> or <strong>Space</strong></span>
+        <span>&bull;</span>
+        <button class="nav-btn" style="padding: 3px 8px; font-size: 11px;" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+      </div>
+      <div class="nav-group">
+        <button class="nav-btn" onclick="prevSlide()">&larr; Previous</button>
+        <span id="slide-indicator" style="font-weight: 700; color: var(--accent-navy); font-size: 12.5px;">Slide 1 / 9</span>
+        <button class="nav-btn" onclick="nextSlide()">Next &rarr;</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      document.getElementById('slide-indicator').innerText = `Slide ${currentSlide} / ${totalSlides}`;
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          alert(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {
+        prevSlide();
+      } else if (e.key === 'Home') {
+        showSlide(1);
+      } else if (e.key === 'End') {
+        showSlide(totalSlides);
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

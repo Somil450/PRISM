@@ -1,0 +1,31 @@
+=============================================================
+ PRISM FORENSICS - TEAM GIT PUSH GUIDE
+ Equal Contribution Allocation: 33.33% Each
+=============================================================
+
+PART 1 (TANUSH - Lead System Architect & Neural Backbone):
+-----------------------------------------------------------
+Branch: prism_contribution_part1_tanush (alias: feature/part1-tanush-backbone-ui)
+Commit: feat(backbone): Implement ViT-B/16 + DoRA neural model, PRNU filter, and Streamlit UI
+Test: py -3.13 -m pytest tests/test_neural_backbone_tanush.py -v
+
+PART 2 (SOMIL - Physical, Temporal & Container Forensics):
+-----------------------------------------------------------
+Branch: prism_contribution_part2_somil (alias: feature/part2-somil-forensic-vision)
+Commit: feat(forensics): Implement ELA compression, optical flow kinematics, and 3D illumination agents
+Test: py -3.13 -m pytest tests/test_forensic_vision_somil.py -v
+
+PART 3 (KULSUM - Biometrics & Evidential Fusion):
+-----------------------------------------------------------
+Branch: prism_contribution_part3_kulsum (alias: feature/part3-kulsum-biometrics-reasoner)
+Commit: feat(reasoning): Implement biological rPPG, LipSync, Dempster-Shafer fusion, and NIST/SWGDE reasoner
+Test: py -3.13 -m pytest tests/test_biometrics_reasoning_kulsum.py -v
+
+=============================================================
+ QUICK TERMINAL PUSH INSTRUCTIONS
+=============================================================
+1. git checkout -b <BRANCH_NAME>
+2. git add .
+3. git commit -m '<COMMIT_MESSAGE>'
+4. git push -u origin <BRANCH_NAME>
+5. Open GitHub and click 'Compare and pull request' to main!
